@@ -12,6 +12,14 @@ chrome_options.add_experimental_option("detach", True)
 user_data_dir = os.path.join(os.getcwd(), "chrome_profile")
 chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
+#Create booking Summary
+classes_booked = 0
+waitlists_joined = 0
+already_booked_waitlisted = 0
+total_Tuesday_6pm_classes_processed = 0
+
+
+
 # Open the tab
 driver = webdriver.Chrome(options=chrome_options)
 driver.get("https://appbrewery.github.io/gym/")
@@ -35,15 +43,17 @@ password_input.send_keys(password)
 submit_button = driver.find_element(By.ID, "submit-button")
 submit_button.click()
 
+
+
 logged_in = driver.find_element(By.ID, "schedule-page").is_displayed()
 
-# find correct courses
+# find correct courses in dropdown
 #dropdown = driver.find_element(By.ID, "type-filter")
 #drop = Select(dropdown)
 #class_wanted = "Spin"
 #drop.select_by_visible_text(class_wanted)
 
-# find the next tuesday
+# find the next tuesday -- option 1
 today_date = datetime.now()
 weekday_idx = 1
 
@@ -53,7 +63,7 @@ if days_delta <= 0:
 
 res = today_date + timedelta(days_delta)
 
-#find one course for tuesday -- option 1
+# ------ find one course for tuesday
 
 #next_course_button = driver.find_element(By.ID, f"book-button-{class_wanted.lower()}-{res.date()}-1800")
 #print(next_course_button.is_displayed())
@@ -93,8 +103,11 @@ for item in list_of_items:
                 if elem.text == "Book Class":
                     elem.click()
                     print(f"✓ Class booked for: Yoga Class on Tue, Aug 12")
+                    classes_booked += 1
+                    total_Tuesday_6pm_classes_processed += 1
                 elif elem.text == "Join Waitlist":
                     elem.click()
+                    waitlists_joined += 1
                     print("✓ Joined waitlist for: Yoga Class on Tue, Aug 12")
                 elif elem.text == "Booked":
                     print("✓ Already booked: Spin Class on Tue, Aug 12")
@@ -102,5 +115,12 @@ for item in list_of_items:
                     print("✓ Already on waitlist: HIIT Class on Tue, Aug 12")
 
 
+print(f"--- BOOKING SUMMARY ---\nClasses booked: {classes_booked}\nWaitlists joined: {waitlists_joined}\nAlready booked/waitlisted: {already_booked_waitlisted}\nTotal Tuesday 6pm classes processed: {total_Tuesday_6pm_classes_processed}")
 
+# verify what I booked
+my_bookings = driver.find_element(By.ID, "my-bookings-link")
+my_bookings.click()
 
+confimred_bookings = driver.find_elements(By.CLASS_NAME, "MyBookings_bookingCard__VRdrR")
+
+print(len(confimred_bookings))
